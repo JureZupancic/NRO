@@ -6,6 +6,10 @@ N = 10000;
 plot(x1_znotraj,y1_znotraj,'b.');
 hold on
 plot(x1_zunaj,y1_zunaj,'r.');
+xlabel('x','FontSize',16)
+ylabel('y','FontSize',16)
+title({'Monte Carlo - Približna vrednost \pi'},'FontSize',16);
+legend('točke v krogu','točke iz kroga')
 
 % Izriše krožnico z radijem r
 fplot(@(t) 0.5*sin(t), @(t) 0.5*cos(t))
