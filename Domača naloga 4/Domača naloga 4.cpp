@@ -1,9 +1,12 @@
-﻿// Domača naloga 4.cpp : Računanje odvoda z diferenčnimi shemami.
-//
+// Domača naloga 4.cpp : Računanje odvoda z diferenčnimi shemami.
 
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+double CentralnaDifShema(std::vector<std::pair<double, double>>& data, int idx, double dx) {
+    return (data[idx + 1].second - data[idx - 1].second) / (2 * dx);
+}
 
 
 double DifShemaNaprej(std::vector<std::pair<double, double>>& data, int idx, double dx) {
@@ -16,9 +19,6 @@ double DifShemaNazaj(std::vector<std::pair<double, double>>& data, int idx, doub
 }
 
 
-double CentralnaDifShema(std::vector<std::pair<double, double>>& data, int idx, double dx) {
-    return (data[idx + 1].second - data[idx - 1].second) / (2 * dx);
-}
 
 int main()
 {
@@ -28,22 +28,22 @@ int main()
         return 1;
     }
 
-    int numOfValues;
-    inputFile >> numOfValues;
+    int ŠteviloTočk;
+    inputFile >> ŠteviloTočk;
 
     std::vector<std::pair<double, double>> data;
     int n;
     double x, fx;
     char dvop = ':';
 
-    for (int i = 0; i < numOfValues; ++i) {
+    for (int i = 0; i < ŠteviloTočk; ++i) {
         inputFile >> n >> dvop >> x >> fx;
         data.emplace_back(x, fx);
     }
 
     inputFile.close();
 
-    double dx = 0.0294117647058822; // ∆x
+    double dx = ((4. - 1.) / (ŠteviloTočk - 1));
     std::ofstream outputFile("odvod_z_dif_shemo.txt");
     if (!outputFile.is_open()) {
         std::cerr << "Neuspelo ustvarjanje datoteke z odvodi funkcije\n";
@@ -51,18 +51,18 @@ int main()
     }
 
 
-    for (int i = 0; i < numOfValues; ++i) {
-        double derivative;
+    for (int i = 0; i < ŠteviloTočk; ++i) {
+        double odvod;
         if (i == 0) {
-            derivative = DifShemaNaprej(data, i, dx);
+            odvod = DifShemaNaprej(data, i, dx);
         }
-        else if (i == numOfValues - 1) {
-            derivative = DifShemaNazaj(data, i, dx);
+        else if (i == ŠteviloTočk - 1) {
+            odvod = DifShemaNazaj(data, i, dx);
         }
         else {
-            derivative = CentralnaDifShema(data, i, dx);
+            odvod = CentralnaDifShema(data, i, dx);
         }
-        outputFile << "f'(" << data[i].first << ") = " << derivative << std::endl;
+        outputFile << "f'(" << data[i].first << ") = " << odvod << std::endl;
     }
 
     outputFile.close();
