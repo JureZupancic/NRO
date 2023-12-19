@@ -51,6 +51,7 @@ int main() {
 
   // V naslednjih n vrsticah imamo elemente matrike A, zato naredimo
   // iteracijo, da preberemo in zafilamo matriko A
+
   for (int iiA=0; iiA < n; iiA++)
     {
       // preberemo vrstico
@@ -121,21 +122,26 @@ int main() {
     }
 
   auto start_time = std::chrono::high_resolution_clock::now();
+
+#pragma omp paralel shared(A,b,T,n) shared(d)
+{
+#pragma omp for
   for (int ii=0; ii<2000; ii++)
     {
     	for (int jj = 0; jj < n; jj++) {
         	double d = b[jj];
+
+			
         		for (int ii = 0; ii < n; ii++) {
-            			if (jj != ii) {
+            			if (jj != ii) 
+					{
                 			d = d - A[jj][ii] * T[ii];
             				}
         			}
         		T[jj] = d / A[jj][jj];
     		}
-
-
     } 
-
+}
   auto end_time = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> time_duration = end_time - start_time;
   std::cout << "Time of Gauss-Seidel: " << time_duration.count() << " seconds" << std::endl;
@@ -156,4 +162,5 @@ int main() {
     
   
   return 0;
+
 }
