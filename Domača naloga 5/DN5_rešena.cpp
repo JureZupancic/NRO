@@ -123,6 +123,8 @@ int main() {
 
   auto start_time = std::chrono::high_resolution_clock::now();
 
+
+//Gauss-Seidl metoda:	
 #pragma omp paralel shared(A,b,T,n) shared(d)
 {
 #pragma omp for
@@ -130,8 +132,6 @@ int main() {
     {
     	for (int jj = 0; jj < n; jj++) {
         	double d = b[jj];
-
-			
         		for (int ii = 0; ii < n; ii++) {
             			if (jj != ii) 
 					{
