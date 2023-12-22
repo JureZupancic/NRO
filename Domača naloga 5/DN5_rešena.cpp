@@ -121,17 +121,20 @@ int main() {
       T.push_back(100);
     }
 
+  
+
   auto start_time = std::chrono::high_resolution_clock::now();
 
+#pragma omp paralel shared(A,b,T,n) private(d)
+  {
 
-//Gauss-Seidl metoda:	
-#pragma omp paralel shared(A,b,T,n) shared(d)
-{
 #pragma omp for
   for (int ii=0; ii<2000; ii++)
     {
     	for (int jj = 0; jj < n; jj++) {
         	double d = b[jj];
+
+			
         		for (int ii = 0; ii < n; ii++) {
             			if (jj != ii) 
 					{
@@ -140,25 +143,34 @@ int main() {
         			}
         		T[jj] = d / A[jj][jj];
     		}
+
+
     } 
 }
+
   auto end_time = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> time_duration = end_time - start_time;
   std::cout << "Time of Gauss-Seidel: " << time_duration.count() << " seconds" << std::endl;
+
   
   // Za izpis maksimalne vrednosti
   double max_T = 0;
   for (int iiT=0; iiT<n_b; iiT++)
     {
-      cout << T[iiT] << endl;
+      //cout << T[iiT] << endl;
       
       if (T[iiT] > max_T){
 	max_T =T[iiT];
       }
     }
-  std::cout << "Serial Time: " << time_duration.count() << " seconds" << std::endl;
-  cout << "Max. temperature: " << max_T << " degree C." << endl;
   
+  std::cout << "Max. temperature: " << max_T << " degree C." << endl;
+  
+    
+  
+  return 0;
+
+}
     
   
   return 0;
