@@ -75,8 +75,8 @@ int main()
 
     std::vector<std::string> cells_string;
     std::string cell;
-    std::istringstream iss(cell_line);
-    while (iss >> cell) {
+    std::istringstream iss2(cell_line);
+    while (iss2 >> cell) {
         cells_string.push_back(cell);
     }
     int n_celice = std::stoi(cells_string[1]);
@@ -86,13 +86,13 @@ int main()
         std::getline(file, s); // preberemo vrstico
         std::replace(s.begin(), s.end(), ';', ' ');
         std::replace(s.begin(), s.end(), ',', ' ');
-        std::istringstream iss(s);
+        std::istringstream iss3(s);
         int cell_id;
         int node1_id;
         int node2_id;
         int node3_id;
         int node4_id;
-        iss >> cell_id >>node1_id >> node2_id >> node3_id >> node4_id;
+        iss3 >> cell_id >>node1_id >> node2_id >> node3_id >> node4_id;
         vector<int> celica;
 
         celica.push_back(cell_id);
@@ -105,8 +105,8 @@ int main()
         
     }
 
-    std::string prazna_vrstica;
-    std::getline(file, prazna_vrstica);
+    std::string prazna_vrstica2;
+    std::getline(file, prazna_vrstica2);
 
 // Branje robnih pogojev
 
@@ -159,13 +159,14 @@ int main()
 
         }
 
-        int st_vozlisc_v_rp;
+        int st_vozlisc_v_rp=0; 
         std::cout << st_vozlisc_v_rp << "\n";
 
         vector<int> vozlisca_v_robnem_pogoju;
 
-        for (int i; i < st_vozlisc_v_rp; i++) {
-            int id_vozlisca;
+        //int id_vozlisca;
+        for (int i2 = 0; i2 < st_vozlisc_v_rp; i2++) {
+            int id_vozlisca = 0;
             std::cout << id_vozlisca << "\n";
 
             vozlisca_v_robnem_pogoju.push_back(id_vozlisca);
@@ -182,10 +183,10 @@ int main()
     int deltaY = 1;
     double k = 1;
 
-    vector<int> sosednja_vozlisca;
+    vector<vector<int>> sosednja_vozlisca;
 
     for (int node_id = 0; node_id < n_vozlisc; node_id++) {
-        vector<double> node_i_neighbours = { -1,-1,-1,-1 };
+        vector<int> node_i_neighbours = { -1,-1,-1,-1 };
 
         for (int nd = 0; nd < n_celice; nd++) {
             vector<int> trenutna_celica = celice[nd];
@@ -196,17 +197,17 @@ int main()
             int vozlisce4 = trenutna_celica[3];
 
             if (node_id == vozlisce1 || node_id == vozlisce2 || node_id == vozlisce3 || node_id == vozlisce4) {
-                for (int vozl = 0; vozl < 4, vozl++;) {
+                for (int vozl = 0; vozl < 4; vozl++) {
                     int sosednje_vozlisce = trenutna_celica[vozl];
 
                     int pozicija;
 
                     if (sosednje_vozlisce != node_id) {
-                        int x_obravnavano_vozl = X[node_id];
-                        int y_obravnavano_vozl = Y[node_id];
+                        double x_obravnavano_vozl = X[node_id];
+                        double y_obravnavano_vozl = Y[node_id];
 
-                        int x_sosed = X[sosednje_vozlisce];
-                        int y_sosed = Y[sosednje_vozlisce];
+                        double x_sosed = X[sosednje_vozlisce];
+                        double y_sosed = Y[sosednje_vozlisce];
 
                         if ((x_obravnavano_vozl - x_sosed) < 1e-9 && (x_obravnavano_vozl - x_sosed) < -1e-9) {
                             if ((y_obravnavano_vozl - y_sosed) < 0) {
@@ -244,9 +245,12 @@ int main()
 
     //double A[2928][2928];
 
-    vector<vector<double>> A(n, vector<double>(n));
+    //vector<vector<double>> A(n, vector<double>(n));
 
-    vector<double> b(n);
+    //vector<double> b(n);
+
+    std::vector<std::vector<double>> A(n, std::vector<double>(n, 0.0));
+    std::vector<double>b(n, 0.0);
     /*
     for (int r = 0; r < n_vozlisc; r++) {
         vector<double> cols;
@@ -272,7 +276,7 @@ int main()
     
     //vector<double> sosedi;
     for (int node_id = 0; node_id < n_vozlisc; node_id++) {
-        vector<int> sosedi = sosednja_vozlisca[node_id -1];
+        vector<int> sosedi = sosednja_vozlisca[node_id - 1];
         int levi_sosed = sosedi[0];
         int spodnji_sosed = sosedi[1];
         int desni_sosed = sosedi[2];
