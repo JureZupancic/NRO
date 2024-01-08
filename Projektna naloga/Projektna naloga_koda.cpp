@@ -28,16 +28,19 @@ int main()
     std::vector<double> vrednosti_robnih_pogojev;
     std::vector<double> vrednosti_prestopa_toplote;
 
-    
-
     std::ifstream file;
     file.open(filename);
-    std::string str_tocke;
-    std::ifstream indata;
-    indata >> str_tocke;
-    std::string str_points;
-    indata >> str_points;
-    int n_vozlisc = std::stoi(str_points); //Št. vozlišč
+
+    std::string string_first_line;
+    std::getline(file, string_first_line);
+
+    std::istringstream iss(string_first_line);
+    std::string nepomemben_del1;
+
+    int n_vozlisc;
+
+    iss >> nepomemben_del1;
+    iss >> n_vozlisc;
 
 //Branje vozlišč
 
@@ -56,14 +59,6 @@ int main()
         X.push_back(x);
         Y.push_back(y);
     }
-
-    /*
-    // Print the resulting vectors
-    for (int i = 0; i < X.size(); i++) {
-        std::cout << "X[" << i << "] = " << X[i] << std::endl;
-        std::cout << "Y[" << i << "] = " << Y[i] << std::endl;
-    }
-    */
 
     std::string prazna_vrstica;
     std::getline(file, prazna_vrstica);
@@ -86,13 +81,13 @@ int main()
         std::getline(file, s); // preberemo vrstico
         std::replace(s.begin(), s.end(), ';', ' ');
         std::replace(s.begin(), s.end(), ',', ' ');
-        std::istringstream iss3(s);
+        std::istringstream iss(s);
         int cell_id;
         int node1_id;
         int node2_id;
         int node3_id;
         int node4_id;
-        iss3 >> cell_id >>node1_id >> node2_id >> node3_id >> node4_id;
+        iss >> cell_id >>node1_id >> node2_id >> node3_id >> node4_id;
         vector<int> celica;
 
         celica.push_back(cell_id);
@@ -108,6 +103,8 @@ int main()
     std::string prazna_vrstica2;
     std::getline(file, prazna_vrstica2);
 
+    //std::cout << celice[0][1] << "\n";
+    
 // Branje robnih pogojev
 
     std::string robni_pogoji_line;
@@ -115,22 +112,38 @@ int main()
 
     std::vector<std::string> robni_pogoji_string;
     std::string rp;
-    std::istringstream iss(robni_pogoji_line);
-    while (iss >> rp) {
-        robni_pogoji_string.push_back(rp);
-    }
-    int n_pogoji = std::stoi(robni_pogoji_string[1]);
+    std::istringstream iss3(robni_pogoji_line);
+
+    int n_pogoji=0;
+    std::string nepomemben_del2;
+    std::string nepomemben_del3;
+
+    iss3 >> nepomemben_del2;
+    iss3 >> nepomemben_del3;
+    iss3 >> n_pogoji;
 
     for (int i = 0; i < n_pogoji; i++) {
         std::string s;
+        string whatever;
         string tip_pogoja;
         std::getline(file, s); // preberemo vrstico
-        std::cout << "pogoj 1:" << tip_pogoja << "\n";
+        std::istringstream iss4(s);
+        std::string npd1;
+        std::string npd2;
+        iss4 >> npd1;
+        iss4 >> npd2;
+        iss4 >> tip_pogoja;
 
         if (tip_pogoja == "temperatura") {
             tipi_robnih_pogojev.push_back(0);
-            int temperatura = 0;
-            std::cout << "temperatura:" << temperatura << "\n";
+            std::string rp_temp;
+            std::getline(file, rp_temp);
+            std::istringstream issrp1(rp_temp);
+            double temperatura;
+            std::string nepomemben_del4;
+
+            issrp1 >> nepomemben_del4;
+            issrp1 >> temperatura;
 
             vrednosti_robnih_pogojev.push_back(temperatura);
             vrednosti_prestopa_toplote.push_back(-1);
@@ -139,8 +152,15 @@ int main()
 
         else if (tip_pogoja == "toplotni") {
             tipi_robnih_pogojev.push_back(1);
-            int toplotni_tok = 0;
-            std::cout << "toplotni tok:" << toplotni_tok << "\n";
+            std::string rp_q;
+            std::getline(file, rp_q);
+            std::istringstream issrp2(rp_q);
+            double toplotni_tok = 0;
+
+            std::string nepomemben_del4;
+
+            issrp2 >> nepomemben_del4;
+            issrp2 >> toplotni_tok;
 
             vrednosti_robnih_pogojev.push_back(toplotni_tok);
             vrednosti_prestopa_toplote.push_back(-1);
@@ -149,10 +169,18 @@ int main()
 
         else if (tip_pogoja == "prestop") {
             tipi_robnih_pogojev.push_back(2);
-            int temp_prestopa = 0;
-            int koef_prestopa = 0;
-            std::cout << "temperatura:" << temp_prestopa << "\n";
-            std::cout << "koeficient prestopa:" << koef_prestopa << "\n";
+            std::string rp_prest;
+            std::getline(file, rp_prest);
+            std::istringstream issrp3(rp_prest);
+
+            double temp_prestopa = 0;
+            double koef_prestopa = 0;
+
+            std::string nepomemben_del4;
+
+            issrp3 >> nepomemben_del4;
+            issrp3 >> temp_prestopa;
+            issrp3 >> koef_prestopa;
 
             vrednosti_robnih_pogojev.push_back(temp_prestopa);
             vrednosti_prestopa_toplote.push_back(koef_prestopa);
@@ -160,21 +188,33 @@ int main()
         }
 
         int st_vozlisc_v_rp=0; 
-        std::cout << st_vozlisc_v_rp << "\n";
+
+        std::string st_vozlisc_rp;
+        std::getline(file, st_vozlisc_rp);
+        std::istringstream strp(st_vozlisc_rp);
+
+        strp >> st_vozlisc_v_rp;
 
         vector<int> vozlisca_v_robnem_pogoju;
 
         //int id_vozlisca;
-        for (int i2 = 0; i2 < st_vozlisc_v_rp; i2++) {
+        for (int i = 0; i < st_vozlisc_v_rp; i++) {
+
+            std::string id_voz_rp;
+            std::getline(file, id_voz_rp);
+            std::istringstream idvozrp(id_voz_rp);
+
             int id_vozlisca = 0;
-            std::cout << id_vozlisca << "\n";
+            idvozrp >> id_vozlisca;
 
             vozlisca_v_robnem_pogoju.push_back(id_vozlisca);
 
         }
 
         vozlisca_robnih_pogojev.insert({ i, vozlisca_v_robnem_pogoju });
-       
+
+        std::string prazna_vrstica2;
+        std::getline(file, prazna_vrstica2);
     }
 
 // Tu je konec branja datoteke
