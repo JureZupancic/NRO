@@ -23,7 +23,8 @@ int main()
     std::vector<double> X;
     std::vector<double> Y;
     std::vector<vector<int>> celice;
-    std::map<int, std::vector<int>> vozlisca_robnih_pogojev;
+    //std::map<int, std::vector<int>> vozlisca_robnih_pogojev;
+    std::vector<vector<int>> vozlisca_robnih_pogojev;
     std::vector<int> tipi_robnih_pogojev;
     std::vector<double> vrednosti_robnih_pogojev;
     std::vector<double> vrednosti_prestopa_toplote;
@@ -87,10 +88,10 @@ int main()
         int node2_id;
         int node3_id;
         int node4_id;
-        iss >> cell_id >>node1_id >> node2_id >> node3_id >> node4_id;
+        iss >> cell_id >> node1_id >> node2_id >> node3_id >> node4_id;
         vector<int> celica;
 
-        celica.push_back(cell_id);
+        //celica.push_back(cell_id);
         celica.push_back(node1_id);
         celica.push_back(node2_id);
         celica.push_back(node3_id);
@@ -103,7 +104,6 @@ int main()
     std::string prazna_vrstica2;
     std::getline(file, prazna_vrstica2);
 
-    //std::cout << celice[0][1] << "\n";
     
 // Branje robnih pogojev
 
@@ -133,7 +133,7 @@ int main()
         iss4 >> npd1;
         iss4 >> npd2;
         iss4 >> tip_pogoja;
-
+        
         if (tip_pogoja == "temperatura") {
             tipi_robnih_pogojev.push_back(0);
             std::string rp_temp;
@@ -177,9 +177,11 @@ int main()
             double koef_prestopa = 0;
 
             std::string nepomemben_del4;
+            std::string nepomemben_del5;
 
             issrp3 >> nepomemben_del4;
             issrp3 >> temp_prestopa;
+            issrp3 >> nepomemben_del5;
             issrp3 >> koef_prestopa;
 
             vrednosti_robnih_pogojev.push_back(temp_prestopa);
@@ -205,26 +207,30 @@ int main()
             std::istringstream idvozrp(id_voz_rp);
 
             int id_vozlisca = 0;
+
             idvozrp >> id_vozlisca;
+            //std::cout << id_vozlisca << "\n";
 
             vozlisca_v_robnem_pogoju.push_back(id_vozlisca);
 
         }
 
-        vozlisca_robnih_pogojev.insert({ i, vozlisca_v_robnem_pogoju });
+        vozlisca_robnih_pogojev.push_back(vozlisca_v_robnem_pogoju);
 
         std::string prazna_vrstica2;
         std::getline(file, prazna_vrstica2);
     }
+    
+    auto start_time = std::chrono::high_resolution_clock::now();
 
 // Tu je konec branja datoteke
-
-    int deltaX = 1;
-    int deltaY = 1;
-    double k = 1;
+    
+    double deltaX = 1.0;
+    double deltaY = 1.0;
+    double k = 1.0;
 
     vector<vector<int>> sosednja_vozlisca;
-
+    
     for (int node_id = 0; node_id < n_vozlisc; node_id++) {
         vector<int> node_i_neighbours = { -1,-1,-1,-1 };
 
@@ -235,13 +241,14 @@ int main()
             int vozlisce2 = trenutna_celica[1];
             int vozlisce3 = trenutna_celica[2];
             int vozlisce4 = trenutna_celica[3];
-
+            
             if (node_id == vozlisce1 || node_id == vozlisce2 || node_id == vozlisce3 || node_id == vozlisce4) {
                 for (int vozl = 0; vozl < 4; vozl++) {
+
                     int sosednje_vozlisce = trenutna_celica[vozl];
 
-                    int pozicija;
-
+                    int pozicija = 0;
+                    
                     if (sosednje_vozlisce != node_id) {
                         double x_obravnavano_vozl = X[node_id];
                         double y_obravnavano_vozl = Y[node_id];
@@ -249,95 +256,83 @@ int main()
                         double x_sosed = X[sosednje_vozlisce];
                         double y_sosed = Y[sosednje_vozlisce];
 
-                        if ((x_obravnavano_vozl - x_sosed) < 1e-9 && (x_obravnavano_vozl - x_sosed) < -1e-9) {
-                            if ((y_obravnavano_vozl - y_sosed) < 0) {
-                                pozicija = 2;
+                        
+                        if ((x_obravnavano_vozl - x_sosed) < 1e-9 && (x_obravnavano_vozl - x_sosed) > -(1e-9)) {
+                            if ((y_obravnavano_vozl - y_sosed) > 0.0) {
+                                pozicija = 1;//V Matlabu 2
                             }
                             else {
-                                pozicija = 4;
+                                pozicija = 3;//V Matlabu 4
                             }
-                        }
 
-                        else if ((y_obravnavano_vozl - y_sosed) < 1e-9 && (y_obravnavano_vozl - y_sosed) < -1e-9) {
-                            if ((x_obravnavano_vozl - x_sosed) < 0) {
-                                pozicija = 1;
+                        }
+                        
+                        else if ((y_obravnavano_vozl - y_sosed) < 1e-9 && (y_obravnavano_vozl - y_sosed) > -(1e-9)) {
+                            if ((x_obravnavano_vozl - x_sosed) > 0.0) {
+                                pozicija = 0;//V Matlabu 1
                             }
                             else {
-                                pozicija = 3;
+                                pozicija = 2;//V Matlabu 3
                             }
-                        }
 
+                        }
+                        
                         else {
                             pozicija = -1;
+                            
+                        }
+                        //std::cout << pozicija << "\n";
+                        
+                        if (pozicija != -1) {
+                            node_i_neighbours[pozicija] = sosednje_vozlisce;
                         }
                         
                     }
-                    if (pozicija != -1) {
-                        node_i_neighbours[pozicija] = sosednje_vozlisce;
-                    }
+                    
                 }
+
             }
+            
         }
-        sosednja_vozlisca.insert(sosednja_vozlisca.end(), node_i_neighbours.begin(), node_i_neighbours.end());
+        sosednja_vozlisca.push_back(node_i_neighbours);      
     }
-    
     int n = n_vozlisc;
 
-    //double A[2928][2928];
+    //std::cout << tipi_robnih_pogojev[0] << "\n";
 
-    //vector<vector<double>> A(n, vector<double>(n));
-
-    //vector<double> b(n);
-
+    //for (int i = 0; i < vrednosti_prestopa_toplote.size(); i++) {
+    //    std::cout << vrednosti_prestopa_toplote[i] << ",";
+    //
+    //}
+    //std::cout << "\n";
+    
     std::vector<std::vector<double>> A(n, std::vector<double>(n, 0.0));
     std::vector<double>b(n, 0.0);
-    /*
-    for (int r = 0; r < n_vozlisc; r++) {
-        vector<double> cols;
-        for (int c = 0; c < n_vozlisc; c++) {
-            cols = cols[cols, 0];
-        }
-        A.push_back(cols, ;);
-    }
-
-    for (int r = 1; r <= n_vozlisc; r++) {
-        std::vector<int> cols;
-        for (int c = 1; c <= n_vozlisc; c++) {
-            cols.push_back(0);
-        }
-        A.push_back(cols);
-    }
-
-    for (int r = 0; r < n_vozlisc, r++;) {
-        b = { b, 0 };
-    }
-    */
-
     
-    //vector<double> sosedi;
+    //vector<double> sosedi; 
     for (int node_id = 0; node_id < n_vozlisc; node_id++) {
-        vector<int> sosedi = sosednja_vozlisca[node_id - 1];
+        vector<int> sosedi = sosednja_vozlisca[node_id]; //node_id - 1
         int levi_sosed = sosedi[0];
         int spodnji_sosed = sosedi[1];
         int desni_sosed = sosedi[2];
         int zgornji_sosed = sosedi[3];
-
+        
         if (levi_sosed != -1 && spodnji_sosed != -1 && desni_sosed != -1 && zgornji_sosed != -1) {
-            A[node_id][levi_sosed] = 1;
-            A[node_id][spodnji_sosed] = 1;
-            A[node_id][desni_sosed] = 1;
-            A[node_id][zgornji_sosed] = 1;
-            A[node_id][node_id] = -4;
+            A[node_id][levi_sosed] = 1.0;
+            A[node_id][spodnji_sosed] = 1.0;
+            A[node_id][desni_sosed] = 1.0;
+            A[node_id][zgornji_sosed] = 1.0;
+            A[node_id][node_id] = -4.0;
         }
         else {
-            int tip_robnega_pogoja;
-            double vrednost;
-            double vrednost_prestopa;
+            int tip_robnega_pogoja = 0;
+            double vrednost=0;
+            double vrednost_prestopa=0;
 
             for (int robni_pogoj_id = 0; robni_pogoj_id < n_pogoji; robni_pogoj_id++) {
                 vector<int> vozlisca_v_trenutnem_rp = vozlisca_robnih_pogojev[robni_pogoj_id];
 
-                for (int id_vozlisce_rp = 0; id_vozlisce_rp < size(vozlisca_v_trenutnem_rp); id_vozlisce_rp++) {
+                for (int id_vozlisce_rp = 0; id_vozlisce_rp < vozlisca_v_trenutnem_rp.size(); id_vozlisce_rp++) {
                     int vozlisce_v_trenutnem_rp = vozlisca_v_trenutnem_rp[id_vozlisce_rp];
 
                     if (node_id == vozlisce_v_trenutnem_rp) {
@@ -347,11 +342,13 @@ int main()
 
                         vrednost_prestopa = vrednosti_prestopa_toplote[robni_pogoj_id];
                     }
+
                 }
+                //std::cout << vrednost << "\n";
             }
 
             if (tip_robnega_pogoja == 0) {
-                A[node_id][node_id] = 1;
+                A[node_id][node_id] = 1.0;
                 b[node_id] = vrednost;
             }
 
@@ -366,25 +363,25 @@ int main()
 
                 if (stevilo_sosedov == 3) {
                     if (levi_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 4;
-                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 2;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1;
-                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1;
-                        b[node_id] = -2 * (vrednost * deltaX / k);
+                        A[node_id][node_id] = A[node_id][node_id] - 4.0;
+                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 2.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1.0;
+                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1.0;
+                        b[node_id] = -2.0 * (vrednost * deltaX / k);
                     }
                     if (desni_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 4;
-                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 2;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1;
-                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1;
-                        b[node_id] = -2 * (vrednost * deltaX / k);
+                        A[node_id][node_id] = A[node_id][node_id] - 4.0;
+                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 2.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1.0;
+                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1.0;
+                        b[node_id] = -2.0 * (vrednost * deltaX / k);
                     }
                     if (spodnji_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 4;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 2;
-                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1;
-                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1;
-                        b[node_id] = -2 * (vrednost * deltaX / k);
+                        A[node_id][node_id] = A[node_id][node_id] - 4.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 2.0;
+                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1.0;
+                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1.0;
+                        b[node_id] = -2.0 * (vrednost * deltaX / k);
                     }
                 }
             }
@@ -399,47 +396,113 @@ int main()
 
                 if (stevilo_sosedov == 3) {
                     if (levi_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 2 * (vrednost_prestopa * deltaX / k + 2);
-                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 2;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1;
-                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1;
-                        b[node_id] = b[node_id] - (2 * vrednost_prestopa * deltaX * vrednost / k);
+                        A[node_id][node_id] = A[node_id][node_id] - 2.0 * (vrednost_prestopa * deltaX / k + 2.0);
+                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 2.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1.0;
+                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1.0;
+                        b[node_id] = b[node_id] - (2.0 * vrednost_prestopa * deltaX * vrednost / k);
                     }
 
                     if (desni_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 2 * (vrednost_prestopa * deltaX / k + 2);
-                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 2;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1;
-                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1;
-                        b[node_id] = b[node_id] - 2 * vrednost_prestopa * deltaX * vrednost / k;
+                        A[node_id][node_id] = A[node_id][node_id] - 2.0 * (vrednost_prestopa * deltaX / k + 2.0);
+                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 2.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 1.0;
+                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 1.0;
+                        b[node_id] = b[node_id] - 2.0 * vrednost_prestopa * deltaX * vrednost / k;
                     }
 
                     if (spodnji_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 2 * (vrednost_prestopa * deltaX / k + 2);
-                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1;
-                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1;
-                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 2;
-                        b[node_id] = -2 * vrednost_prestopa * deltaX * vrednost / k;
+                        A[node_id][node_id] = A[node_id][node_id] - 2.0 * (vrednost_prestopa * deltaX / k + 2.0);
+                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1.0;
+                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1.0;
+                        A[node_id][zgornji_sosed] = A[node_id][zgornji_sosed] + 2.0;
+                        b[node_id] = -2.0 * vrednost_prestopa * deltaX * vrednost / k;
                     }
 
                     if (zgornji_sosed == -1) {
-                        A[node_id][node_id] = A[node_id][node_id] - 2 * (vrednost_prestopa * deltaX / k + 2);
-                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1;
-                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1;
-                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 2;
-                        b[node_id] = -2 * vrednost_prestopa * deltaX * vrednost / k;
+                        A[node_id][node_id] = A[node_id][node_id] - 2.0 * (vrednost_prestopa * deltaX / k + 2.0);
+                        A[node_id][levi_sosed] = A[node_id][levi_sosed] + 1.0;
+                        A[node_id][desni_sosed] = A[node_id][desni_sosed] + 1.0;
+                        A[node_id][spodnji_sosed] = A[node_id][spodnji_sosed] + 2.0;
+                        b[node_id] = -2.0 * vrednost_prestopa * deltaX * vrednost / k;
                     }
                 }
             }
         }
     }
-
     //Sedaj imamo matriko A in vektor b. jupi
 
+    vector<double> T;
+    for (int iiT = 0; iiT < n; iiT++)
+    {
+        T.push_back(100);
+    }
 
-    std::cout << n_vozlisc;
+    for (int ii = 0; ii < 200; ii++)
+    {
+        for (int jj = 0; jj < n; jj++) {
+            double d = b[jj];
+            for (int ii = 0; ii < n; ii++) {
+                if (jj != ii) {
+                    d = d - A[jj][ii] * T[ii];
+                }
+            }
+            T[jj] = d / A[jj][jj];
+        }
 
+    } 
+    
+    auto end_time = std::chrono::high_resolution_clock::now();
+    
+    //std::cout << n_vozlisc <<"\n";
+    std::chrono::duration<double> time_duration = end_time - start_time;
+    std::cout << "Cas: " << time_duration.count() << " sekund" << std::endl;
+    /*
+    double max_T = 0;
+    for (int iiT = 0; iiT < n; iiT++)
+    {
+        cout << T[iiT] << endl;
+
+        if (T[iiT] > max_T) {
+            max_T = T[iiT];
+        }
+    }
+    std::cout << "Max. temperature: " << max_T << " degree C." << endl;
+    */
+    std::ofstream fileID;
+    fileID.open("rezultat_vtkcpp.vtk");
+
+    fileID << "# vtk DataFile Version 3.0\n";
+    fileID << "Mesh_1\n";
+    fileID << "ASCII\n";
+    fileID << "DATASET UNSTRUCTURED_GRID\n";
+    fileID << "POINTS " << n_vozlisc << " float\n";
+    for (int koordinata_id = 0; koordinata_id < n_vozlisc; koordinata_id++) {
+        fileID << X[koordinata_id] << " " << Y[koordinata_id] << " 0\n";
+    }
+    fileID << "\n";
+    fileID << "CELLS " << n_celice << " " << n_celice * 5 << "\n";
+    for (int celica_id = 0; celica_id < n_celice; celica_id++) {
+        int vozl_id1 = celice[celica_id][0];
+        int vozl_id2 = celice[celica_id][1];
+        int vozl_id3 = celice[celica_id][2];
+        int vozl_id4 = celice[celica_id][3];
+        fileID << "4 " << vozl_id1 << " " << vozl_id2 << " " << vozl_id3 << " " << vozl_id4 << "\n";
+    }
+    fileID << "\n";
+    fileID << "CELL_TYPES " << n_celice << "\n";
+    for (int celica_id = 0; celica_id < n_celice; celica_id++) {
+        fileID << "9\n";
+    }
+    fileID << "\n";
+    fileID << "POINT_DATA " << n_vozlisc << "\n";
+    fileID << "SCALARS Temperature float 1\n";
+    fileID << "LOOKUP_TABLE default\n";
+    for (int koordinata_id = 0; koordinata_id < n_vozlisc; koordinata_id++) {
+        fileID << T[koordinata_id] << "\n";
+    }
+
+    fileID.close();
 
     std::cout << "Hello World!\n";
 }
-
