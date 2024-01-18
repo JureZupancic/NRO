@@ -168,26 +168,29 @@ int main()
         }
 
         else if (tip_pogoja == "prestop") {
-            tipi_robnih_pogojev.push_back(2);
-            std::string rp_prest;
-            std::getline(file, rp_prest);
-            std::istringstream issrp3(rp_prest);
+    tipi_robnih_pogojev.push_back(2);
+    std::string rp_prest;
+    std::getline(file, rp_prest);
+    std::istringstream issrp3(rp_prest);
 
-            double temp_prestopa = 0;
-            double koef_prestopa = 0;
+    double temp_prestopa = 0;
+    double koef_prestopa = 0;
 
-            std::string nepomemben_del4;
-            std::string nepomemben_del5;
+    std::string nepomemben_del4;
+    std::string nepomemben_del5;
 
-            issrp3 >> nepomemben_del4;
-            issrp3 >> temp_prestopa;
-            issrp3 >> nepomemben_del5;
-            issrp3 >> koef_prestopa;
+    issrp3 >> nepomemben_del4 >> temp_prestopa;
+            
+    std::string rp_prest2;
+    std::getline(file, rp_prest2);
+    std::istringstream issrp4(rp_prest2);
 
-            vrednosti_robnih_pogojev.push_back(temp_prestopa);
-            vrednosti_prestopa_toplote.push_back(koef_prestopa);
+    issrp4 >> nepomemben_del5 >> koef_prestopa;
 
-        }
+    vrednosti_robnih_pogojev.push_back(temp_prestopa);
+    vrednosti_prestopa_toplote.push_back(koef_prestopa);
+
+}
 
         int st_vozlisc_v_rp=0; 
 
