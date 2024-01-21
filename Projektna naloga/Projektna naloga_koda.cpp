@@ -43,6 +43,8 @@ int main()
     iss >> nepomemben_del1;
     iss >> n_vozlisc;
 
+    std::cout << "Stevilo vozlist: " << n_vozlisc << "\n";
+
 //Branje vozlišč
 
     for (int i = 0; i < n_vozlisc; i++) {
@@ -100,6 +102,7 @@ int main()
         celice.push_back(celica);
         
     }
+    std::cout << "Stevilo celic: " << n_celice << "\n";
 
 //Branje robnih pogojev
 
@@ -120,6 +123,8 @@ int main()
     iss3 >> nepomemben_del2;
     iss3 >> nepomemben_del3;
     iss3 >> n_pogoji;
+
+    std::cout << "Stevilo robnih pogojev: " << n_pogoji << "\n";
 
     for (int i = 0; i < n_pogoji; i++) {
         std::string s;
@@ -148,7 +153,8 @@ int main()
 
             vrednosti_robnih_pogojev.push_back(temperatura);
             vrednosti_prestopa_toplote.push_back(-1);
-            
+
+            std::cout << i + 1 << ". pogoj: " << "Znana temperatura na robu: T = " << temperatura << " *C" << "\n";
         }
 
 //Branje datoteke, če imamo opravka z toplotnim tokom na robu
@@ -168,6 +174,7 @@ int main()
             vrednosti_robnih_pogojev.push_back(toplotni_tok);
             vrednosti_prestopa_toplote.push_back(-1);
 
+            std::cout << i + 1 << ". pogoj: " << "Znan toplotni tok na robu: q = " << toplotni_tok << " W/m**2" << "\n";
         }
 
 //Branje datoteke, če imamo opravka z konvektivnim prestopom na robu
@@ -183,17 +190,19 @@ int main()
 
             std::string nepomemben_del4;
             std::string nepomemben_del5;
+            std::string nepomemben_del6;
 
             issrp3 >> nepomemben_del4 >> temp_prestopa;
             std::string rp_prest2;
             std::getline(file, rp_prest2);
             std::istringstream issrp4(rp_prest2);
 
-            issrp4 >> nepomemben_del5 >> koef_prestopa;
+            issrp4 >> nepomemben_del5 >> nepomemben_del6 >> koef_prestopa;
 
             vrednosti_robnih_pogojev.push_back(temp_prestopa);
             vrednosti_prestopa_toplote.push_back(koef_prestopa);
 
+            std::cout << i + 1 << ". pogoj: " << "Znan konvektivni toplotni tok na robu: T_ok = " << temp_prestopa << " *C, koeficient prestopa: " << koef_prestopa << " W/(m**2 K)" << "\n";
         }
 
         int st_vozlisc_v_rp=0; 
@@ -478,7 +487,7 @@ int main()
     {
 
 #pragma omp for
-        for (int ii = 0; ii < 2000; ii++)
+        for (int ii = 0; ii < 1000; ii++)
         {
             for (int jj = 0; jj < n; jj++) {
                 double d = b[jj];
@@ -498,21 +507,17 @@ int main()
     std::chrono::duration<double> time_duration = end_time - start_time;
     std::cout << "Cas Gauss-Seidl metode: " << time_duration.count() << " sekund" << std::endl;
 
-//Tu je sicer še možnost da program izpiše vrednosti temperature v vsakemu vozslišču in izračuna ter izpiše max. temperaturo, kot v DN5.
-//Da tega ne izpisuje vsakič je v tem dukumentu ta del kode zakomentiran.
+    //Izračun T_max
 
-    /*
     double max_T = 0;
     for (int iiT = 0; iiT < n; iiT++)
     {
-        cout << T[iiT] << endl;
 
         if (T[iiT] > max_T) {
             max_T = T[iiT];
         }
     }
-    std::cout << "Max. temperature: " << max_T << " degree C." << endl;
-    */
+    std::cout << "Maksimalna temperatura: " << max_T << " *C." << endl;
 
     //Zapis rezultatov v .vtk datoteki
 
@@ -550,7 +555,4 @@ int main()
     }
 
     fileID.close();
-    
-
-    std::cout << "Hello World!\n";
 }
