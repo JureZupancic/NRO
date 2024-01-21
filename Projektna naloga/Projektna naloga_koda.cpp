@@ -458,7 +458,7 @@ int main()
 
     for (int i = 0; i < b.size(); i++)
     {
-        fileIDb << b[i] << ", ";
+        fileIDb << b[i] << ",";
 
         fileIDb << endl;
     }
@@ -474,21 +474,25 @@ int main()
     {
         T.push_back(100);
     }
-
-    for (int ii = 0; ii < 2000; ii++)
+#pragma omp paralel shared(A,b,T,n) private(d)
     {
-        for (int jj = 0; jj < n; jj++) {
-            double d = b[jj];
-            for (int ii = 0; ii < n; ii++) {
-                if (jj != ii) {
-                    d = d - A[jj][ii] * T[ii];
-                }
-            }
-            T[jj] = d / A[jj][jj];
-        }
 
+#pragma omp for
+        for (int ii = 0; ii < 2000; ii++)
+        {
+            for (int jj = 0; jj < n; jj++) {
+                double d = b[jj];
+                for (int ii = 0; ii < n; ii++) {
+                    if (jj != ii) {
+                        d = d - A[jj][ii] * T[ii];
+                    }
+                }
+                T[jj] = d / A[jj][jj];
+            }
+
+        }
     }
-    
+
     auto end_time = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> time_duration = end_time - start_time;
@@ -547,11 +551,6 @@ int main()
 
     fileID.close();
     
-
-    std::cout << "Hello World!\n";
-}
-
-    fileID.close();
 
     std::cout << "Hello World!\n";
 }
