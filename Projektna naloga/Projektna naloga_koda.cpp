@@ -483,11 +483,14 @@ int main()
     {
         T.push_back(100);
     }
+
+    int st_iter = 1000;
+
 #pragma omp paralel shared(A,b,T,n) private(d)
     {
 
 #pragma omp for
-        for (int ii = 0; ii < 1000; ii++)
+        for (int ii = 0; ii < st_iter; ii++)
         {
             for (int jj = 0; jj < n; jj++) {
                 double d = b[jj];
@@ -505,7 +508,7 @@ int main()
     auto end_time = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> time_duration = end_time - start_time;
-    std::cout << "Cas Gauss-Seidl metode: " << time_duration.count() << " sekund" << std::endl;
+    std::cout << "Stevilo Gauss-Seidl iteracij: " << st_iter << ", cas Gauss-Seidl metode: " << time_duration.count() << " sekund" << std::endl;
 
     //Izračun T_max
 
