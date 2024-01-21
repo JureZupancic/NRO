@@ -1,5 +1,4 @@
-// Projektna naloga_koda.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// Projektna naloga_koda.cpp
 
 #define _USE_MATH_DEFINES
 #include <vector>
@@ -18,12 +17,11 @@ using namespace std;
 
 int main()
 {
-    std::string filename = "./primer3mreza.txt";
+    std::string filename = "./primer1mreza.txt";
 
     std::vector<double> X;
     std::vector<double> Y;
     std::vector<vector<int>> celice;
-    //std::map<int, std::vector<int>> vozlisca_robnih_pogojev;
     std::vector<vector<int>> vozlisca_robnih_pogojev;
     std::vector<int> tipi_robnih_pogojev;
     std::vector<double> vrednosti_robnih_pogojev;
@@ -37,6 +35,8 @@ int main()
 
     std::istringstream iss(string_first_line);
     std::string nepomemben_del1;
+
+//Branje števila vozlišč
 
     int n_vozlisc;
 
@@ -61,6 +61,7 @@ int main()
         Y.push_back(y);
     }
 
+    
     std::string prazna_vrstica;
     std::getline(file, prazna_vrstica);
 
@@ -79,7 +80,7 @@ int main()
     
     for (int i = 0; i < n_celice; i++) {
         std::string s;
-        std::getline(file, s); // preberemo vrstico
+        std::getline(file, s); 
         std::replace(s.begin(), s.end(), ';', ' ');
         std::replace(s.begin(), s.end(), ',', ' ');
         std::istringstream iss(s);
@@ -91,7 +92,6 @@ int main()
         iss >> cell_id >> node1_id >> node2_id >> node3_id >> node4_id;
         vector<int> celica;
 
-        //celica.push_back(cell_id);
         celica.push_back(node1_id);
         celica.push_back(node2_id);
         celica.push_back(node3_id);
@@ -101,11 +101,10 @@ int main()
         
     }
 
+//Branje robnih pogojev
+
     std::string prazna_vrstica2;
     std::getline(file, prazna_vrstica2);
-
-    
-// Branje robnih pogojev
 
     std::string robni_pogoji_line;
     std::getline(file, robni_pogoji_line);
@@ -126,13 +125,15 @@ int main()
         std::string s;
         string whatever;
         string tip_pogoja;
-        std::getline(file, s); // preberemo vrstico
+        std::getline(file, s);
         std::istringstream iss4(s);
         std::string npd1;
         std::string npd2;
         iss4 >> npd1;
         iss4 >> npd2;
         iss4 >> tip_pogoja;
+
+//Branje datoteke, če imamo opravka z znano temperaturo na robu
         
         if (tip_pogoja == "temperatura") {
             tipi_robnih_pogojev.push_back(0);
@@ -149,6 +150,8 @@ int main()
             vrednosti_prestopa_toplote.push_back(-1);
             
         }
+
+//Branje datoteke, če imamo opravka z toplotnim tokom na robu
 
         else if (tip_pogoja == "toplotni") {
             tipi_robnih_pogojev.push_back(1);
@@ -167,30 +170,31 @@ int main()
 
         }
 
+//Branje datoteke, če imamo opravka z konvektivnim prestopom na robu
+
         else if (tip_pogoja == "prestop") {
-    tipi_robnih_pogojev.push_back(2);
-    std::string rp_prest;
-    std::getline(file, rp_prest);
-    std::istringstream issrp3(rp_prest);
+            tipi_robnih_pogojev.push_back(2);
+            std::string rp_prest;
+            std::getline(file, rp_prest);
+            std::istringstream issrp3(rp_prest);
 
-    double temp_prestopa = 0;
-    double koef_prestopa = 0;
+            double temp_prestopa = 0;
+            double koef_prestopa = 0;
 
-    std::string nepomemben_del4;
-    std::string nepomemben_del5;
+            std::string nepomemben_del4;
+            std::string nepomemben_del5;
 
-    issrp3 >> nepomemben_del4 >> temp_prestopa;
-            
-    std::string rp_prest2;
-    std::getline(file, rp_prest2);
-    std::istringstream issrp4(rp_prest2);
+            issrp3 >> nepomemben_del4 >> temp_prestopa;
+            std::string rp_prest2;
+            std::getline(file, rp_prest2);
+            std::istringstream issrp4(rp_prest2);
 
-    issrp4 >> nepomemben_del5 >> koef_prestopa;
+            issrp4 >> nepomemben_del5 >> koef_prestopa;
 
-    vrednosti_robnih_pogojev.push_back(temp_prestopa);
-    vrednosti_prestopa_toplote.push_back(koef_prestopa);
+            vrednosti_robnih_pogojev.push_back(temp_prestopa);
+            vrednosti_prestopa_toplote.push_back(koef_prestopa);
 
-}
+        }
 
         int st_vozlisc_v_rp=0; 
 
@@ -202,7 +206,6 @@ int main()
 
         vector<int> vozlisca_v_robnem_pogoju;
 
-        //int id_vozlisca;
         for (int i = 0; i < st_vozlisc_v_rp; i++) {
 
             std::string id_voz_rp;
@@ -212,7 +215,6 @@ int main()
             int id_vozlisca = 0;
 
             idvozrp >> id_vozlisca;
-            //std::cout << id_vozlisca << "\n";
 
             vozlisca_v_robnem_pogoju.push_back(id_vozlisca);
 
@@ -223,11 +225,12 @@ int main()
         std::string prazna_vrstica2;
         std::getline(file, prazna_vrstica2);
     }
-    
-    auto start_time = std::chrono::high_resolution_clock::now();
+
 
 // Tu je konec branja datoteke
     
+//Sledeči blok kode nam preveri sosednjost vozlišč in to zapiše v obliki vektrojev
+
     double deltaX = 1.0;
     double deltaY = 1.0;
     double k = 1.0;
@@ -262,20 +265,20 @@ int main()
                         
                         if ((x_obravnavano_vozl - x_sosed) < 1e-9 && (x_obravnavano_vozl - x_sosed) > -(1e-9)) {
                             if ((y_obravnavano_vozl - y_sosed) > 0.0) {
-                                pozicija = 1;//V Matlabu 2
+                                pozicija = 1;
                             }
                             else {
-                                pozicija = 3;//V Matlabu 4
+                                pozicija = 3;
                             }
 
                         }
                         
                         else if ((y_obravnavano_vozl - y_sosed) < 1e-9 && (y_obravnavano_vozl - y_sosed) > -(1e-9)) {
                             if ((x_obravnavano_vozl - x_sosed) > 0.0) {
-                                pozicija = 0;//V Matlabu 1
+                                pozicija = 0;
                             }
                             else {
-                                pozicija = 2;//V Matlabu 3
+                                pozicija = 2;
                             }
 
                         }
@@ -284,12 +287,13 @@ int main()
                             pozicija = -1;
                             
                         }
-                        //std::cout << pozicija << "\n";
                         
                         if (pozicija != -1) {
+
                             node_i_neighbours[pozicija] = sosednje_vozlisce;
+
                         }
-                        
+
                     }
                     
                 }
@@ -297,24 +301,18 @@ int main()
             }
             
         }
-        sosednja_vozlisca.push_back(node_i_neighbours);      
+        sosednja_vozlisca.push_back(node_i_neighbours);
+      
     }
     int n = n_vozlisc;
-
-    //std::cout << tipi_robnih_pogojev[0] << "\n";
-
-    //for (int i = 0; i < vrednosti_prestopa_toplote.size(); i++) {
-    //    std::cout << vrednosti_prestopa_toplote[i] << ",";
-    //
-    //}
-    //std::cout << "\n";
     
+//Sledeči segment kode na podlagi prebranih podatkov in sosednjosti vozlišč sestavi matriko A in vektor b
+
     std::vector<std::vector<double>> A(n, std::vector<double>(n, 0.0));
     std::vector<double>b(n, 0.0);
     
-    //vector<double> sosedi; 
     for (int node_id = 0; node_id < n_vozlisc; node_id++) {
-        vector<int> sosedi = sosednja_vozlisca[node_id]; //node_id - 1
+        vector<int> sosedi = sosednja_vozlisca[node_id];
         int levi_sosed = sosedi[0];
         int spodnji_sosed = sosedi[1];
         int desni_sosed = sosedi[2];
@@ -347,7 +345,7 @@ int main()
                     }
 
                 }
-                //std::cout << vrednost << "\n";
+
             }
 
             if (tip_robnega_pogoja == 0) {
@@ -433,7 +431,43 @@ int main()
             }
         }
     }
-    //Sedaj imamo matriko A in vektor b. jupi
+
+//Sedaj imamo matriko A in vektor b. jupi
+
+//Shranjevanje matrike A in vektorja b za uporabo v MATLABu.
+
+    std::ofstream fileIDA;
+    fileIDA.open("A.csv");
+
+    for (int i = 0; i < A[0].size(); i++)
+    {
+
+        fileIDA << A[i][0];
+
+        for (int j = 1; j < A[0].size(); j++)
+        {
+            fileIDA << ", " << A[i][j];
+        }
+
+        fileIDA << endl;
+    }
+    fileIDA.close();
+
+    std::ofstream fileIDb;
+    fileIDb.open("b.csv");
+
+    for (int i = 0; i < b.size(); i++)
+    {
+        fileIDb << b[i] << ", ";
+
+        fileIDb << endl;
+    }
+    fileIDb.close();
+
+//Začetek merjenja časa računanja sistema enačb
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+//Računanje sistema enačb z Gauss-Seidlovo metodo
 
     vector<double> T;
     for (int iiT = 0; iiT < n; iiT++)
@@ -441,7 +475,7 @@ int main()
         T.push_back(100);
     }
 
-    for (int ii = 0; ii < 200; ii++)
+    for (int ii = 0; ii < 2000; ii++)
     {
         for (int jj = 0; jj < n; jj++) {
             double d = b[jj];
@@ -453,13 +487,16 @@ int main()
             T[jj] = d / A[jj][jj];
         }
 
-    } 
+    }
     
     auto end_time = std::chrono::high_resolution_clock::now();
-    
-    //std::cout << n_vozlisc <<"\n";
+
     std::chrono::duration<double> time_duration = end_time - start_time;
-    std::cout << "Cas: " << time_duration.count() << " sekund" << std::endl;
+    std::cout << "Cas Gauss-Seidl metode: " << time_duration.count() << " sekund" << std::endl;
+
+//Tu je sicer še možnost da program izpiše vrednosti temperature v vsakemu vozslišču in izračuna ter izpiše max. temperaturo, kot v DN5.
+//Da tega ne izpisuje vsakič je v tem dukumentu ta del kode zakomentiran.
+
     /*
     double max_T = 0;
     for (int iiT = 0; iiT < n; iiT++)
@@ -472,6 +509,9 @@ int main()
     }
     std::cout << "Max. temperature: " << max_T << " degree C." << endl;
     */
+
+    //Zapis rezultatov v .vtk datoteki
+
     std::ofstream fileID;
     fileID.open("rezultat_vtkcpp.vtk");
 
@@ -504,6 +544,12 @@ int main()
     for (int koordinata_id = 0; koordinata_id < n_vozlisc; koordinata_id++) {
         fileID << T[koordinata_id] << "\n";
     }
+
+    fileID.close();
+    
+
+    std::cout << "Hello World!\n";
+}
 
     fileID.close();
 
